@@ -6,11 +6,7 @@ set -o pipefail
 machine=$(uname -m)
 
 case ${machine} in
-	aarch64 )
-		TOOLBOX_DOCKER_IMAGE=arm64v8/fedora
-		TOOLBOX_DOCKER_TAG=latest
-		;;
-	x86_64 )
+	x86_64 | aarch64 | armv7l | riscv64 )
 		TOOLBOX_DOCKER_IMAGE=fedora
 		TOOLBOX_DOCKER_TAG=latest
 		;;
