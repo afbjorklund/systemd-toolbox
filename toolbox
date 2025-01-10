@@ -50,17 +50,9 @@ if [ ! -f "${osrelease}" ] || systemctl is-failed -q "${machinename}" ; then
 	sudo chown "${USER}:" "${machinepath}"
 
 	if [[ -n "${have_docker_image}" ]]; then
-		riid=$(sudo --preserve-env rkt --insecure-options=image fetch "docker://${TOOLBOX_DOCKER_IMAGE}:${TOOLBOX_DOCKER_TAG}")
-		sudo --preserve-env rkt image extract --overwrite --rootfs-only "${riid}" "${machinepath}"
-		sudo --preserve-env rkt image rm "${riid}"
+		crane export "${TOOLBOX_DOCKER_IMAGE}:${TOOLBOX_DOCKER_TAG}" | sudo tar -C "${machinepath}" -xf -
 	elif [[ -n "${TOOLBOX_DOCKER_ARCHIVE}" ]]; then
-		tmpdir=$(mktemp -d -p /var/tmp/)
-		trap "sudo rm -rf ${tmpdir}" EXIT PIPE
-		wget -O- "${TOOLBOX_DOCKER_ARCHIVE}" | xz -cd | tar -C ${tmpdir} -xf -
-		layer=$(find ${tmpdir} -name layer.tar -type f)
-		sudo tar -C ${machinepath} -xf ${layer}
-		trap - EXIT PIPE
-		sudo rm -rf ${tmpdir}
+		curl "${TOOLBOX_DOCKER_ARCHIVE}" | zstd -cd | crane export - | sudo tar -C "${machinepath}" -xf -
 	else
 		echo "Error: No toolbox filesystem specified." >&2
 		exit 1
