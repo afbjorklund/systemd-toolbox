@@ -25,11 +25,13 @@ toolboxrc="${HOME}"/.toolboxrc
 
 # System defaults
 if [ -f "/etc/default/toolbox" ]; then
+	# shellcheck disable=SC1091
 	source "/etc/default/toolbox"
 fi
 
 # User overrides
 if [ -f "${toolboxrc}" ]; then
+	# shellcheck disable=SC1090
 	source "${toolboxrc}"
 fi
 
@@ -61,6 +63,7 @@ if [ "x${1-}" == x-c ]; then
 	set /bin/sh "$@"
 fi
 
+# shellcheck disable=SC2086
 sudo SYSTEMD_NSPAWN_SHARE_SYSTEM=1 systemd-nspawn \
 	--directory="${machinepath}" \
 	--capability=all \
